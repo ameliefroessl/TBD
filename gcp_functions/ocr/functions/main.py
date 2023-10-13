@@ -38,4 +38,4 @@ def ocr_v2(req: https_fn.Request) -> https_fn.Response:
 
     text_in_image = detect_text_uri(uri=req.args["image_url"])
 
-    return https_fn.Response(text_in_image)
+    return https_fn.Response(text_in_image) 
