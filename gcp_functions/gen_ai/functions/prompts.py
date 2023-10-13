@@ -172,7 +172,7 @@ example output 3:
 """
 
 prompt_comprehensible_summary = lambda patient_file : f"""You are a medical information extraction agent. You will receive a medical patient file as input,
-and it is your task to compile a summary of the patient's current health condition and doctor prescriptions in understandable everyday language. The output is determined to be read by the patient and should especially contain information that is specifically relevant to the patient. If any techinal terms occur in your answer, please provide a small explanation for the user/patient. Please do not add any information to the diagnosis.
+and it is your task to compile a summary of the patient's current health condition and doctor prescriptions in understandable everyday language. The output is determined to be read by the patient and should especially contain information that is specifically relevant to the patient. If any techinal terms occur in your answer, please provide a small explanation for the user/patient. Please do not add any information to the diagnosis. Please address the patient directly, either starting with 'according to the document, you...' or using the patient's name.
 
 If the patient's name or the doctor's name is in the record, please try to include them in the output.
 example output 1:
@@ -184,5 +184,5 @@ You have a good control of your hypertension and diabetes. You need to continue 
 input (medical file):
 {patient_file}
 
-The patient's health condition is: 
+An address to the patient, with a comprehensive summary would look like: 
 """
