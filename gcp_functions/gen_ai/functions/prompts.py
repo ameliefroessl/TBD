@@ -5,7 +5,7 @@ contain information that is specifically relevant to the patient. If any medical
 Do not invent any information that is not in the file, and do not generate recommendations nor explanations of your own.
 If the patient's name or the doctor's name is in the record, please try to include them in the output.
 example output 1:
-Mr. Dupont, you have [amblyopia], [hypertension], and [diabetes]. You are being followed regularly for your amblyopia. 
+Mrs. Dupont, you have [amblyopia], [hypertension], and [diabetes]. You are being followed regularly for your amblyopia. 
 You have a good control of your hypertension and diabetes. You need to continue to follow your treatments. 
 Your next appointment is on November 1st.
 examplt output 2:
@@ -15,11 +15,11 @@ Mrs. Doe, you have [acute bronchitis].
 The treatment plan is [antibiotics], rest, and fluids. You will be taking [amoxicillin] 500 mg twice daily for 10 days. You should also rest and drink plenty of fluids.
 You should return to the doctor if your symptoms do not improve within 7 days.
 example output 4:
-Mr. Dupont, you have [alopecia areata]. This is a condition that causes hair loss. 
+Mr. Hein, you have [alopecia areata]. This is a condition that causes hair loss. 
 The treatment plan is [topical corticosteroids], [minoxidil], [finasteride], and [phototherapy]. 
 The prognosis is that most patients will eventually regrow their hair, but some patients may have permanent hair loss.
 example output 5:
-Mr. Dupont, you have no known health problems. You have been in good health for your entire life. You do not need to take any medication.
+Mr. Che, you have no known health problems. You have been in good health for your entire life. You do not need to take any medication.
 
 input (medical file):
 {patient_file}
@@ -130,3 +130,59 @@ example 7:
 }
 The patient data contained in the patient form is:
 """ + patient_form                            
+
+prompt_answer_question_from_file = lambda patient_file,user_question : f"""You are a information extraction agent. You will be provided with a medical patient file and a user question. 
+It is your task to extract relevant information from the medical patient file and return an answer to the user question. If the patient file does not contain information relevant to the question, please respond: "The answer to this question is not in the file."
+
+the medical patient file is:
+{patient_file}
+
+the user question is:
+{user_question}
+
+The answer to the user question is:
+"""
+
+prompt_doublecheck_responses = lambda patient_file,llm_response : f"""You are an information compararison agent. You will receive an input text containing medical information, 
+and a generated summary. It is your task to determine if the summary contains any added information that is not in the original text. This can include invented treatment plans,
+explanations or names and dates. If you find added information, respond 'yes'. If the two texts are consistent, respond 'no'.
+
+input medical information text:
+{patient_file}
+
+summary:
+{response}
+
+The summary does not contain added information that is not present in the medical information text [yes/no]:
+"""
+
+prompt_follow_up_appointment = lambda patient_file : f"""You are an information extractor for medical patient data. 
+You will receive a medical patient file as input, and it is your task to extract any appointments mentioned in the file.
+The appointments need to be formatted in the way: 
+YYYY-MM-DD: Appointment context.
+medical file:
+{patient_file}
+
+example output 1:
+1999-03-05:Appointment for iris scan
+example output 2:
+2019-12-18:Hospital visit for general check up
+example output 3:
+----------:No appointments mentioned.
+"""
+
+prompt_comprehensible_summary = lambda patient_file : f"""You are a medical information extraction agent. You will receive a medical patient file as input,
+and it is your task to compile a summary of the patient's current health condition and doctor prescriptions in understandable everyday language. The output is determined to be read by the patient and should especially contain information that is specifically relevant to the patient. If any techinal terms occur in your answer, please provide a small explanation for the user/patient. Please do not add any information to the diagnosis.
+
+If the patient's name or the doctor's name is in the record, please try to include them in the output.
+example output 1:
+Mrs. Dupont, you have amblyopia, hypertension, and diabetes. 
+Amblyopia is a condition of the eye...
+You are being followed regularly for your amblyopia. 
+You have a good control of your hypertension and diabetes. You need to continue to follow your treatments. 
+
+input (medical file):
+{patient_file}
+
+The patient's health condition is: 
+"""
