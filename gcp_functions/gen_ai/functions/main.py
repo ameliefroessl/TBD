@@ -6,7 +6,7 @@ from firebase_functions import https_fn
 from firebase_admin import initialize_app
 import vertexai 
 from vertexai.language_models import TextGenerationModel
-from prompts import prompt_general_info
+from prompts import prompt_general_info, prompt_answer_question_from_file, prompt_physician_data, prompt_doublecheck_responses,prompt_comprehensible_summary
 
 initialize_app()
 
