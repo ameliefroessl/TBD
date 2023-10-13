@@ -151,7 +151,7 @@ input medical information text:
 {patient_file}
 
 summary:
-{response}
+{llm_response}  
 
 The summary does not contain added information that is not present in the medical information text [yes/no]:
 """

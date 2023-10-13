@@ -79,7 +79,7 @@ def answer_patient_question(req: https_fn.Request) -> https_fn.Response:
     patient_record = req.args["record"]
     patient_question = req.args["question"]
     
-    response = answer_patient_question_response_(patient_record,patient_question)
+    response = answer_patient_question_(patient_record,patient_question)
     
     return https_fn.Response(response.text)
 
@@ -90,14 +90,12 @@ def comprehensible_summary(req: https_fn.Request) -> https_fn.Response:
     REST api:
     "record":String representation of a patient file
     """
-        
-    if not "record" in req.args:
-        return "No health record data provided."
-    
-    patient_record = req.args["record"]
-    
-    response = comprehensible_summary_(patient_record)
-    
+    request_json = req.get_json(silent=True)
+    if request_json and "record" in request_json:
+        patient_record = request_json["record"]
+    else:
+        raise ValueError("JSON is invalid, or missing a 'record' property")    
+    response = comprehensible_summary_(patient_record)    
     return https_fn.Response(response.text)
 
 @https_fn.on_request()
@@ -113,7 +111,7 @@ def extract_contacts(req: https_fn.Request) -> https_fn.Response:
     
     patient_record = req.args["record"]
     
-    response = comprehensible_summary_(patient_record)
+    response = extract_contacts_(patient_record)
     
     return https_fn.Response(response.text)
 
@@ -165,13 +163,15 @@ def comprehensible_summary_(patient_record):
 
     return response
     
-def extract_contacts(patient_record):
+def extract_contacts_(patient_record):
     """
     This function can be called to extract contact information from a patient file, e.g. in order to directly contact a physician on a mobile device.
     args:
     "record":String representation of a patient file
     """
     
-    response = prompt_physician_data(patient_record)
+    prompt_physician_data_string = prompt_physician_data(patient_record)
+
+    response = prompt_palm(prompt_physician_data_string)
     
     return response
