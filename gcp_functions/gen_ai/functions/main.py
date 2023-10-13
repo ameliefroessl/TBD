@@ -70,14 +70,16 @@ def answer_patient_question(req: https_fn.Request) -> https_fn.Response:
     "record":String representation of a patient file
     "question":User question concerning the patient file content
     """
-        
-    if not "record" in req.args:
-        return "No health record data provided."
-    if not "question" in req.args:
-        return "No user question provided."
-    
-    patient_record = req.args["record"]
-    patient_question = req.args["question"]
+
+    request_json = req.get_json(silent=True)
+    if request_json and "record" in request_json:
+        patient_record = request_json["record"]
+    else:
+        raise ValueError("JSON is invalid, or missing a 'record' property") 
+    if "question" in request_json:
+        patient_question = request_json["question"]
+    else:
+        raise ValueError("JSON is invalid, or missing a 'question' property") 
     
     response = answer_patient_question_(patient_record,patient_question)
     
