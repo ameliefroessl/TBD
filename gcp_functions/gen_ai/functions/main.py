@@ -27,7 +27,7 @@ def prompt_palm(prompt_string,temperature=0.0,max_output_tokens=1024,model_name=
     generation_model = TextGenerationModel.from_pretrained(model_name)
 
     response = generation_model.predict(general_info_prompt_string,temperature=temperature,max_output_tokens=max_output_tokens)
-    return response.text
+    return response
 
 
 def check_content_extraction_coherence(patient_data,llm_response):
@@ -43,6 +43,79 @@ def check_content_extraction_coherence(patient_data,llm_response):
     response = prompt_palm(doublecheck_prompt_string)
     
     return (('yes' in response) and (not 'no' in response))
+
+
+### https request bindings:
+# They handle the decoding of https_fn into string arguments, call a python function to process, and returns the response re-packaged as https_fn
+
+@https_fn.on_request()
+def extract_diagnosis(req: https_fn.Request) -> https_fn.Response:
+    """
+    This function can be called to extract a short, comprehensive diagnosis from a given patient record in text representation.
+    """
+    if not "record" in req.args:
+        return "No health record data provided."
+    
+    patient_record = req.args["record"]
+    
+    response = extract_diagnosis_(patient_record)
+    return https_fn.Response(response.text)
+
+
+@https_fn.on_request()
+def answer_patient_question(req: https_fn.Request) -> https_fn.Response:
+    """
+    This function can be called to extract data from a patient file and answer a patient question concerning the patient file.
+    REST api:
+    "record":String representation of a patient file
+    "question":User question concerning the patient file content
+    """
+        
+    if not "record" in req.args:
+        return "No health record data provided."
+    if not "question" in req.args:
+        return "No user question provided."
+    
+    patient_record = req.args["record"]
+    patient_question = req.args["question"]
+    
+    response = answer_patient_question_response_(patient_record,patient_question)
+    
+    return https_fn.Response(response.text)
+
+@https_fn.on_request()
+def comprehensible_summary(req: https_fn.Request) -> https_fn.Response:
+    """
+    This function can be called to extract data from a patient file and create a comprehensible summary, where technical language is replaced by understandable terms, or technial terms are briefly explained.
+    REST api:
+    "record":String representation of a patient file
+    """
+        
+    if not "record" in req.args:
+        return "No health record data provided."
+    
+    patient_record = req.args["record"]
+    
+    response = comprehensible_summary_(patient_record)
+    
+    return https_fn.Response(response.text)
+
+@https_fn.on_request()
+def extract_contacts(req: https_fn.Request) -> https_fn.Response:
+    """
+    This function can be called to extract contact information from a patient file, e.g. in order to directly contact a physician on a mobile device.
+    REST api:
+    "record":String representation of a patient file
+    """
+        
+    if not "record" in req.args:
+        return "No health record data provided."
+    
+    patient_record = req.args["record"]
+    
+    response = comprehensible_summary_(patient_record)
+    
+    return https_fn.Response(response.text)
 
 
 ### proper python functions:
@@ -92,74 +165,13 @@ def comprehensible_summary_(patient_record):
 
     return response
     
-
-### https request bindings:
-# They handle the decoding of https_fn into string arguments, call a python function to process, and returns the response re-packaged as https_fn
-
-@https_fn.on_request()
-def extract_diagnosis(req: https_fn.Request) -> https_fn.Response:
+def extract_contacts(patient_record):
     """
-    This function can be called to extract a short, comprehensive diagnosis from a given patient record in text representation.
-    """
-    if not "record" in req.args:
-        return "No health record data provided."
-    
-    response = extract_diagnosis_(record)
-    return https_fn.Response(response.text)
-
-
-@https_fn.on_request()
-def answer_patient_question(req: https_fn.Request) -> https_fn.Response:
-    """
-    This function can be called to extract data from a patient file and answer a patient question concerning the patient file.
-    REST api:
-    "record":String representation of a patient file
-    "question":User question concerning the patient file content
-    """
-        
-    if not "record" in req.args:
-        return "No health record data provided."
-    if not "question" in req.args:
-        return "No user question provided."
-    
-    patient_record = req.args["record"]
-    patient_question = req.args["question"]
-    
-    response = answer_patient_question_response_(patient_record,patient_question)
-    
-    return https_fn.Response(response.text)
-
-@https_fn.on_request()
-def comprehensible_summary(req: https_fn.Request) -> https_fn.Response:
-    """
-    This function can be called to extract data from a patient file and create a comprehensible summary, where technical language is replaced by understandable terms, or technial terms are briefly explained.
-    REST api:
+    This function can be called to extract contact information from a patient file, e.g. in order to directly contact a physician on a mobile device.
+    args:
     "record":String representation of a patient file
     """
-        
-    if not "record" in req.args:
-        return "No health record data provided."
     
-    patient_record = req.args["record"]
+    response = prompt_physician_data(patient_record)
     
-    response = comprehensible_summary_(patient_record)
-    
-    return https_fn.Response(response.text)
-
-@https_fn.on_request()
-def extract_contacts(req: https_fn.Request) -> https_fn.Response:
-    """
-    This function can be called to extract data from a patient file and create a comprehensible summary, where technical language is replaced by understandable terms, or technial terms are briefly explained.
-    REST api:
-    "record":String representation of a patient file
-    """
-        
-    if not "record" in req.args:
-        return "No health record data provided."
-    
-    patient_record = req.args["record"]
-    
-    response = comprehensible_summary_(patient_record)
-    
-    return https_fn.Response(response.text)
-
+    return response
