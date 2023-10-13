@@ -45,6 +45,54 @@ def check_content_extraction_coherence(patient_data,llm_response):
     return (('yes' in response) and (not 'no' in response))
 
 
+### proper python functions:
+
+def extract_diagnosis_(patient_record):
+    """
+    This function can be called to extract a short, comprehensive diagnosis from a given patient record in text representation.
+    """
+    
+    general_info_prompt_string = prompt_general_info(patient_record)
+
+    response = prompt_palm(general_info_prompt_string)
+    
+    for i in range(10):
+        if check_content_extraction_coherence(patient_record,response.text):
+            continue
+        else:
+            general_info_prompt_string+=" Make sure not to add any added information that is not present in the patient report!\n"
+            response = prompt_palm(general_info_prompt_string,temperature=0.1)
+    
+    return response
+
+def answer_patient_question_(patient_record, patient_question):
+    """
+    This function can be called to extract data from a patient file and answer a patient question concerning the patient file.
+    args:
+    "record":String representation of a patient file
+    "question":User question concerning the patient file content
+    """
+    
+    user_question_prompt_string = prompt_answer_question_from_file(patient_record,patient_question)
+
+    response = prompt_palm(user_question_prompt_string)
+
+    return response
+
+def comprehensible_summary_(patient_record):
+    """
+    This function can be called to extract data from a patient file and create a comprehensible summary, where technical language is replaced by understandable terms, or technial terms are briefly explained.
+    args:
+    "record":String representation of a patient file
+    """
+    
+    comprehensive_prompt_string = prompt_comprehensible_summary(patient_record)
+
+    response = prompt_palm(comprehensive_prompt_string)
+
+    return response
+    
+
 ### https request bindings:
 # They handle the decoding of https_fn into string arguments, call a python function to process, and returns the response re-packaged as https_fn
 
@@ -115,52 +163,3 @@ def extract_contacts(req: https_fn.Request) -> https_fn.Response:
     
     return https_fn.Response(response.text)
 
-
-### proper python functions:
-
-def extract_diagnosis_(patient_record):
-    """
-    This function can be called to extract a short, comprehensive diagnosis from a given patient record in text representation.
-    """
-    
-    general_info_prompt_string = prompt_general_info(patient_record)
-
-    response = prompt_palm(general_info_prompt_string)
-    
-    for i in range(10):
-        if check_content_extraction_coherence(patient_record,response.text):
-            continue
-        else:
-            general_info_prompt_string+=" Make sure not to add any added information that is not present in the patient report!\n"
-            response = prompt_palm(general_info_prompt_string,temperature=0.1)
-    
-    return response
-
-def answer_patient_question_(patient_record, patient_question):
-    """
-    This function can be called to extract data from a patient file and answer a patient question concerning the patient file.
-    args:
-    "record":String representation of a patient file
-    "question":User question concerning the patient file content
-    """
-    
-    user_question_prompt_string = prompt_answer_question_from_file(patient_record,patient_question)
-
-    response = prompt_palm(user_question_prompt_string)
-
-    return response
-
-def comprehensible_summary_(patient_record):
-    """
-    This function can be called to extract data from a patient file and create a comprehensible summary, where technical language is replaced by understandable terms, or technial terms are briefly explained.
-    args:
-    "record":String representation of a patient file
-    """
-    
-    comprehensive_prompt_string = prompt_comprehensible_summary(patient_record)
-
-    response = prompt_palm(comprehensive_prompt_string)
-
-    return response
-    
-    
