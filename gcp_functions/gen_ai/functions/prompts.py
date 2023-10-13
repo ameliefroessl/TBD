@@ -132,7 +132,10 @@ The patient data contained in the patient form is:
 """ + patient_form                            
 
 prompt_answer_question_from_file = lambda patient_file,user_question : f"""You are a information extraction agent. You will be provided with a medical patient file and a user question. 
-It is your task to extract relevant information from the medical patient file and return an answer to the user question. If the patient file does not contain information relevant to the question, please respond: "The answer to this question is not in the file."
+It is your task to extract relevant information from the medical patient file and return an answer to the user question. If the patient file does not contain information relevant to the question, please respond: "The answer to this question is not in the file." Please address the user directly if he asks a question about him/herself.
+
+example output 1:
+You have hypertension.
 
 the medical patient file is:
 {patient_file}
@@ -140,7 +143,7 @@ the medical patient file is:
 the user question is:
 {user_question}
 
-The answer to the user question is:
+The answer to my question is:
 """
 
 prompt_doublecheck_responses = lambda patient_file,llm_response : f"""You are an information compararison agent. You will receive an input text containing medical information, 
@@ -172,7 +175,7 @@ example output 3:
 """
 
 prompt_comprehensible_summary = lambda patient_file : f"""You are a medical information extraction agent. You will receive a medical patient file as input,
-and it is your task to compile a summary of the patient's current health condition and doctor prescriptions in understandable everyday language. The output is determined to be read by the patient and should especially contain information that is specifically relevant to the patient. If any techinal terms occur in your answer, please provide a small explanation for the user/patient. Please do not add any information to the diagnosis. Please address the patient directly, either starting with 'according to the document, you...' or using the patient's name. Do not use a formal format, but just a plain language output. You are not a doctor and you are not a hospital, but remain a reporting agent that communicates the doctors intent. Do not format the the output as a letter with a formal greetings.
+and it is your task to compile a comprehensive and concise summary of the patient's current health condition in understandable everyday language. The output is determined to be read by the patient and should especially contain information that is relevant to the patient. If any techinal terms occur in your answer, please provide a small explanation for the user/patient. Please do not add any information to the diagnosis. Please address the patient directly, either starting with 'according to the document, you...' or using the patient's name. Do not use a formal format, but just a plain language output. You are not a doctor and you are not a hospital, but remain a reporting agent that communicates the doctors intent. Do not format the the output as a letter with a formal greeting.
 
 If the patient's name or the doctor's name is in the record, please try to include them in the output.
 example output 1:
