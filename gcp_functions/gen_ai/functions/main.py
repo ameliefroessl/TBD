@@ -21,12 +21,12 @@ def prompt_palm(prompt_string,temperature=0.0,max_output_tokens=1024,model_name=
     temperature: Temperature for the prediction call. Lower temperature means the most deterministic, least 'creative' output.
     max_output_tokes: 1024 is the maximum size for text-bison@001.
     """
-    general_info_prompt_string = prompt_general_info(patient_record)
+    # general_info_prompt_string = prompt_general_info(prompt_string)
 
     # text-bison@001 is the generic PALMapi model for language tasks and questiona answering
     generation_model = TextGenerationModel.from_pretrained(model_name)
 
-    response = generation_model.predict(general_info_prompt_string,temperature=temperature,max_output_tokens=max_output_tokens)
+    response = generation_model.predict(prompt_string,temperature=temperature,max_output_tokens=max_output_tokens)
     return response
 
 
@@ -42,7 +42,7 @@ def check_content_extraction_coherence(patient_data,llm_response):
     
     response = prompt_palm(doublecheck_prompt_string)
     
-    return (('yes' in response) and (not 'no' in response))
+    return (('yes' in response.text) and (not 'no' in response.text))
 
 
 ### https request bindings:
