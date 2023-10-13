@@ -21,7 +21,7 @@ def detect_text_uri(uri):
     texts = response.text_annotations
 
     all_text = []
-    for text in texts:
+    for text in texts:  
         all_text.append(text.description)
     all_text = " ".join(all_text)
     return all_text
@@ -34,7 +34,7 @@ def detect_text_uri(uri):
 
 
 @https_fn.on_request()
-def ocr(req: https_fn.Request) -> https_fn.Response:
+def ocr_v2(req: https_fn.Request) -> https_fn.Response:
 
     text_in_image = detect_text_uri(uri=req.args["image_url"])
 
