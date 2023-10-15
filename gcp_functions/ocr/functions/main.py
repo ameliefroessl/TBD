@@ -54,7 +54,7 @@ def detect_text_uri(uri):
     return format_output(texts)
 
 
-
+# WIP -- this should work something along these lines
 # @https_fn.on_request()
 # def ocr_download(req: https_fn.Request) -> https_fn.Response:
 
@@ -65,7 +65,6 @@ def detect_text_uri(uri):
 #     # image_data = req.data
 #     # Use the bytes data function to detect text
 #     text_in_image = detect_text_local(path=local_url)
-
 #     return https_fn.Response(text_in_image) 
 
 
@@ -76,14 +75,3 @@ def ocr_v2(req: https_fn.Request) -> https_fn.Response:
 
     return https_fn.Response(text_in_image) 
 
-@https_fn.on_request()
-def ocr_v2_multiple(req: https_fn.Request) -> https_fn.Response:
-
-    text_in_url_1 = detect_text_uri(uri=req.args["image_url_1"])
-    text_in_url_2 = detect_text_uri(uri=req.args["image_url_2"])
-    text_in_url_3 = detect_text_uri(uri=req.args["image_url_3"])
-    text_in_url_4 = detect_text_uri(uri=req.args["image_url_4"])
-
-    output  = " ".join([text_in_url_1, text_in_url_2, text_in_url_3, text_in_url_4])
-
-    return https_fn.Response(output)
