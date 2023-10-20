@@ -10,9 +10,8 @@ from google.cloud import storage
 initialize_app()
 
 
-def download_file_from_bucket(remote_url, local_url):
+def download_file_from_bucket(remote_url, bucket_name, local_url):
     storage_client = storage.Client()
-    bucket_name = "merantix-genai23ber-9514.appspot.com"
     bucket = storage_client.get_bucket(bucket_name)
     bucket.download_to_filename(local_url)
 
@@ -73,7 +72,6 @@ def detect_text_uri(uri):
 
 @https_fn.on_request()
 def ocr_v2(req: https_fn.Request) -> https_fn.Response:
-
     text_in_image = detect_text_uri(uri=req.args["image_url"])
 
     return https_fn.Response(text_in_image)
