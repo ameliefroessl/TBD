@@ -8,11 +8,12 @@ from google.cloud import translate_v2 as translate
 
 initialize_app()
 
+
 @https_fn.on_request()
 def translate(req: https_fn.Request) -> https_fn.Response:
     translate_client = translate.Client()
 
-    # the text you want translated, the model does automatic source language detection 
+    # the text you want translated, the model does automatic source language detection
     text = req["text"]
     # target language in ISO 639-1 language code
     target_lan = req["language"]

@@ -4,16 +4,25 @@
 
 from firebase_functions import https_fn
 from firebase_admin import initialize_app
-import vertexai 
+import vertexai
 from vertexai.language_models import TextGenerationModel
-from prompts import prompt_general_info, prompt_answer_question_from_file, prompt_physician_data, prompt_doublecheck_responses,prompt_comprehensible_summary
+from prompts import (
+    prompt_general_info,
+    prompt_answer_question_from_file,
+    prompt_physician_data,
+    prompt_doublecheck_responses,
+    prompt_comprehensible_summary,
+)
 
 initialize_app()
 
 
 ### utils functions:
 
-def prompt_palm(prompt_string,temperature=0.0,max_output_tokens=1024,model_name="text-bison@001"):
+
+def prompt_palm(
+    prompt_string, temperature=0.0, max_output_tokens=1024, model_name="text-bison@001"
+):
     """
     This function takes a prompt string, uses it to call the PALM api and returns the response string.
     args:
@@ -26,27 +35,30 @@ def prompt_palm(prompt_string,temperature=0.0,max_output_tokens=1024,model_name=
     # text-bison@001 is the generic PALMapi model for language tasks and questiona answering
     generation_model = TextGenerationModel.from_pretrained(model_name)
 
-    response = generation_model.predict(prompt_string,temperature=temperature,max_output_tokens=max_output_tokens)
+    response = generation_model.predict(
+        prompt_string, temperature=temperature, max_output_tokens=max_output_tokens
+    )
     return response
 
 
-def check_content_extraction_coherence(patient_data,llm_response):
+def check_content_extraction_coherence(patient_data, llm_response):
     """
     This function checks a PALM generated summary on coherency. It should return False if the PALM generated text contains extra information.
     REST api:
     "patient_data":raw text representation of a patient file
     "llm_response":a PALM-generated summary of the patient file
     """
-        
-    doublecheck_prompt_string = prompt_doublecheck_responses(patient_data,llm_response)
-    
+
+    doublecheck_prompt_string = prompt_doublecheck_responses(patient_data, llm_response)
+
     response = prompt_palm(doublecheck_prompt_string)
-    
-    return (('yes' in response.text) and (not 'no' in response.text))
+
+    return ("yes" in response.text) and (not "no" in response.text)
 
 
 ### https request bindings:
 # They handle the decoding of https_fn into string arguments, call a python function to process, and returns the response re-packaged as https_fn
+
 
 @https_fn.on_request()
 def extract_diagnosis(req: https_fn.Request) -> https_fn.Response:
@@ -55,9 +67,9 @@ def extract_diagnosis(req: https_fn.Request) -> https_fn.Response:
     """
     if not "record" in req.args:
         return "No health record data provided."
-    
+
     patient_record = req.args["record"]
-    
+
     response = extract_diagnosis_(patient_record)
     return https_fn.Response(response.text)
 
@@ -75,15 +87,16 @@ def answer_patient_question(req: https_fn.Request) -> https_fn.Response:
     if request_json and "record" in request_json:
         patient_record = request_json["record"]
     else:
-        raise ValueError("JSON is invalid, or missing a 'record' property") 
+        raise ValueError("JSON is invalid, or missing a 'record' property")
     if "question" in request_json:
         patient_question = request_json["question"]
     else:
-        raise ValueError("JSON is invalid, or missing a 'question' property") 
-    
-    response = answer_patient_question_(patient_record,patient_question)
-    
+        raise ValueError("JSON is invalid, or missing a 'question' property")
+
+    response = answer_patient_question_(patient_record, patient_question)
+
     return https_fn.Response(response.text)
+
 
 @https_fn.on_request()
 def comprehensible_summary(req: https_fn.Request) -> https_fn.Response:
@@ -96,9 +109,10 @@ def comprehensible_summary(req: https_fn.Request) -> https_fn.Response:
     if request_json and "record" in request_json:
         patient_record = request_json["record"]
     else:
-        raise ValueError("JSON is invalid, or missing a 'record' property")    
-    response = comprehensible_summary_(patient_record)    
+        raise ValueError("JSON is invalid, or missing a 'record' property")
+    response = comprehensible_summary_(patient_record)
     return https_fn.Response(response.text)
+
 
 @https_fn.on_request()
 def extract_contacts(req: https_fn.Request) -> https_fn.Response:
@@ -107,36 +121,38 @@ def extract_contacts(req: https_fn.Request) -> https_fn.Response:
     REST api:
     "record":String representation of a patient file
     """
-        
+
     if not "record" in req.args:
         return "No health record data provided."
-    
+
     patient_record = req.args["record"]
-    
+
     response = extract_contacts_(patient_record)
-    
+
     return https_fn.Response(response.text)
 
 
 ### proper python functions:
 
+
 def extract_diagnosis_(patient_record):
     """
     This function can be called to extract a short, comprehensive diagnosis from a given patient record in text representation.
     """
-    
+
     general_info_prompt_string = prompt_general_info(patient_record)
 
     response = prompt_palm(general_info_prompt_string)
-    
+
     for i in range(10):
-        if check_content_extraction_coherence(patient_record,response.text):
+        if check_content_extraction_coherence(patient_record, response.text):
             continue
         else:
-            general_info_prompt_string+=" Make sure not to add any added information that is not present in the patient report!\n"
-            response = prompt_palm(general_info_prompt_string,temperature=0.1)
-    
+            general_info_prompt_string += " Make sure not to add any added information that is not present in the patient report!\n"
+            response = prompt_palm(general_info_prompt_string, temperature=0.1)
+
     return response
+
 
 def answer_patient_question_(patient_record, patient_question):
     """
@@ -145,12 +161,15 @@ def answer_patient_question_(patient_record, patient_question):
     "record":String representation of a patient file
     "question":User question concerning the patient file content
     """
-    
-    user_question_prompt_string = prompt_answer_question_from_file(patient_record,patient_question)
+
+    user_question_prompt_string = prompt_answer_question_from_file(
+        patient_record, patient_question
+    )
 
     response = prompt_palm(user_question_prompt_string)
 
     return response
+
 
 def comprehensible_summary_(patient_record):
     """
@@ -158,22 +177,23 @@ def comprehensible_summary_(patient_record):
     args:
     "record":String representation of a patient file
     """
-    
+
     comprehensive_prompt_string = prompt_comprehensible_summary(patient_record)
 
     response = prompt_palm(comprehensive_prompt_string)
 
     return response
-    
+
+
 def extract_contacts_(patient_record):
     """
     This function can be called to extract contact information from a patient file, e.g. in order to directly contact a physician on a mobile device.
     args:
     "record":String representation of a patient file
     """
-    
+
     prompt_physician_data_string = prompt_physician_data(patient_record)
 
     response = prompt_palm(prompt_physician_data_string)
-    
+
     return response

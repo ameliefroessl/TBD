@@ -9,15 +9,17 @@ from google.cloud import storage
 
 initialize_app()
 
+
 def download_file_from_bucket(remote_url, local_url):
     storage_client = storage.Client()
-    bucket_name = 'merantix-genai23ber-9514.appspot.com'
+    bucket_name = "merantix-genai23ber-9514.appspot.com"
     bucket = storage_client.get_bucket(bucket_name)
     bucket.download_to_filename(local_url)
-   
+
+
 def format_output(texts):
     all_text = []
-    for text in texts:  
+    for text in texts:
         all_text.append(text.description)
     all_text = " ".join(all_text)
     return all_text
@@ -27,6 +29,7 @@ def format_output(texts):
             "{}\nFor more info on error messages, check: "
             "https://cloud.google.com/apis/design/errors".format(response.error.message)
         )
+
 
 def detect_text_local(path):
     client_options = {"api_endpoint": "eu-vision.googleapis.com"}
@@ -65,7 +68,7 @@ def detect_text_uri(uri):
 #     # image_data = req.data
 #     # Use the bytes data function to detect text
 #     text_in_image = detect_text_local(path=local_url)
-#     return https_fn.Response(text_in_image) 
+#     return https_fn.Response(text_in_image)
 
 
 @https_fn.on_request()
@@ -73,5 +76,4 @@ def ocr_v2(req: https_fn.Request) -> https_fn.Response:
 
     text_in_image = detect_text_uri(uri=req.args["image_url"])
 
-    return https_fn.Response(text_in_image) 
-
+    return https_fn.Response(text_in_image)

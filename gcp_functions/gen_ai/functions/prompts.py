@@ -1,4 +1,5 @@
-prompt_general_info = lambda patient_file : f"""You are a medical information extraction agent. You will receive a medical patient file as input,
+prompt_general_info = (
+    lambda patient_file: f"""You are a medical information extraction agent. You will receive a medical patient file as input,
 and it is your task to compile a summary of the patient's current health condition and doctor prescriptions. 
 in understandable everyday language. The output is determined to be read by the patient and should especially 
 contain information that is specifically relevant to the patient. If any medical terms occur in your answer, please put them between brackets like so: [pneumatitis]
@@ -26,8 +27,10 @@ input (medical file):
 
 The patient's health condition is: 
 """
+)
 
-prompt_physician_data = lambda patient_form: """You are an information extractor for medical patient data. 
+prompt_physician_data = (
+    lambda patient_form: """You are an information extractor for medical patient data. 
 You will receive a medical patient file as input, and it is your task to extract contact data of the patient and the physician.
 Extract name, institution, contact phone number and mail address.
 Return the information in json format. If no respective data is available, give it the null value.
@@ -129,9 +132,12 @@ example 7:
   }
 }
 The patient data contained in the patient form is:
-""" + patient_form                            
+"""
+    + patient_form
+)
 
-prompt_answer_question_from_file = lambda patient_file,user_question : f"""You are a information extraction agent. You will be provided with a medical patient file and a user question. 
+prompt_answer_question_from_file = (
+    lambda patient_file, user_question: f"""You are a information extraction agent. You will be provided with a medical patient file and a user question. 
 It is your task to extract relevant information from the medical patient file and return an answer to the user question. If the patient file does not contain information relevant to the question, please respond: "The answer to this question is not in the file." Please address the user directly if he asks a question about him/herself.
 
 example output 1:
@@ -145,8 +151,10 @@ the user question is:
 
 The answer to my question is:
 """
+)
 
-prompt_doublecheck_responses = lambda patient_file,llm_response : f"""You are an information compararison agent. You will receive an input text containing medical information, 
+prompt_doublecheck_responses = (
+    lambda patient_file, llm_response: f"""You are an information compararison agent. You will receive an input text containing medical information, 
 and a generated summary. It is your task to determine if the summary contains any added information that is not in the original text. This can include invented treatment plans,
 explanations or names and dates. If you find added information, respond 'yes'. If the two texts are consistent, respond 'no'.
 
@@ -158,8 +166,10 @@ summary:
 
 The summary does not contain added information that is not present in the medical information text [yes/no]:
 """
+)
 
-prompt_follow_up_appointment = lambda patient_file : f"""You are an information extractor for medical patient data. 
+prompt_follow_up_appointment = (
+    lambda patient_file: f"""You are an information extractor for medical patient data. 
 You will receive a medical patient file as input, and it is your task to extract any appointments mentioned in the file.
 The appointments need to be formatted in the way: 
 YYYY-MM-DD: Appointment context.
@@ -173,8 +183,10 @@ example output 2:
 example output 3:
 ----------:No appointments mentioned.
 """
+)
 
-prompt_comprehensible_summary = lambda patient_file : f"""You are a medical information extraction agent. You will receive a medical patient file as input,
+prompt_comprehensible_summary = (
+    lambda patient_file: f"""You are a medical information extraction agent. You will receive a medical patient file as input,
 and it is your task to compile a comprehensive and concise summary of the patient's current health condition in understandable everyday language. The output is supposed to be read by the patient and should above all contain information that is relevant to the patient. If any techinal terms occur in your answer, please provide a small explanation for the user/patient. Please do not add any information to the diagnosis. Please address the patient directly, either starting with 'according to the document, you...' or using the patient's name. Do not use a formal format, but just a plain language output. You are not a doctor and you are not a hospital, but remain a reporting agent that communicates the doctors intent. Do not format the the output as a letter with a formal greeting.
 
 If the patient's name or the doctor's name is in the record, please try to include them in the output.
@@ -193,3 +205,4 @@ input (medical file):
 
 A comprehensive summary of the medical information would look like: 
 """
+)
