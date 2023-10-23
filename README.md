@@ -19,6 +19,5 @@ The google cloud functions used in the backend are in the `/gcp_functions` folde
 2. `gen_ai` - Generating the simplified prognosis. We used google's [Palm 2 for text](https://forums.macrumors.com/threads/charging-a-macbook-pro-16-m1-max-with-a-67-watt-charger.2327512/) with some additional prompt engineering.
 3. `translation` - translating text. We used [google cloud's text translation](https://cloud.google.com/translate/docs/basic/translating-text) for this.
 
-The frontend code for the flutter app can be found in `TODO`
+The frontend code for the flutter app can be found in [this repo](https://github.com/kkotsche1/TBD_flutter_gui)
 
-* the 
